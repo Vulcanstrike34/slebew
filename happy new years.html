@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy New Year</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #centerContainer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    #happyNewYearText {
+      font-size: 50px;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 2px 2px 10px rgba(255, 255, 0, 0.8);
+      display: none; /* Awalnya tersembunyi */
+      margin-bottom: 20px;
+    }
+
+    #triggerButton {
+      padding: 10px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      background-color: #ff5722;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+    }
+
+    #triggerButton:hover {
+      background-color: #e64a19;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworksCanvas"></canvas>
+
+  <!-- Kontainer di tengah -->
+  <div id="centerContainer">
+    <div id="happyNewYearText">Happy New Year!</div>
+    <button id="triggerButton">Celebrate!</button>
+  </div>
+
+  <script>
+    // Canvas Setup
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let fireworks = [];
+
+    // Firework Class
+    class Firework {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.particles = [];
+        for (let i = 0; i < 100; i++) { // Partikel lebih banyak
+          this.particles.push(new Particle(x, y));
+        }
+      }
+
+      update() {
+        this.particles.forEach((particle) => particle.update());
+      }
+
+      draw() {
+        this.particles.forEach((particle) => particle.draw());
+      }
+    }
+
+    // Particle Class
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 6 - 3; // Kecepatan lebih tinggi
+        this.speedY = Math.random() * 6 - 3;
+        this.alpha = 1;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.015; // Partikel bertahan lebih lama
+        if (this.alpha < 0) this.alpha = 0;
+      }
+
+      draw() {
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Animasi Kembang Api
+    function animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      fireworks.forEach((firework, index) => {
+        firework.update();
+        firework.draw();
+        if (firework.particles[0].alpha <= 0) fireworks.splice(index, 1); // Hapus kembang api
+      });
+      requestAnimationFrame(animate);
+    }
+
+    // Tambahkan Kembang Api
+    function addFirework(x, y) {
+      fireworks.push(new Firework(x, y));
+    }
+
+    // Perayaan Happy New Year
+    const happyNewYearText = document.getElementById('happyNewYearText');
+    const triggerButton = document.getElementById('triggerButton');
+
+    triggerButton.addEventListener('click', () => {
+      happyNewYearText.style.display = 'block'; // Tampilkan teks
+      let fireworkInterval = setInterval(() => {
+        addFirework(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height
+        );
+      }, 300); // Tambah kembang api setiap 300ms
+
+      setTimeout(() => clearInterval(fireworkInterval), 10000); // Hentikan kembang api setelah 10 detik
+    });
+
+    // Jalankan animasi
+    animate();
+
+    // Responsif saat layar diubah ukurannya
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
